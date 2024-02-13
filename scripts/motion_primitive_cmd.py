@@ -1,31 +1,49 @@
 #!/usr/bin/env python3
 
-# lib example
-from python_lib.lib_example import hello
-
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String
-import time
+from ackermann_msgs.msg import AckermannDriveStamped
 
-def main():
-    hello()
-    rclpy.init()
-    test_node = Node("node_py_name")
-
-    str_publisher = test_node.create_publisher(String, "/topicdd", 10)
-
-    msg = String()
-    msg.data = "hello"
-    for i in range(10):
-        str_publisher.publish(msg)
-        hello()
-        time.sleep(1)
-
-    return True
+class StraightLineDriver(Node):
+    def __init__(self):
+        super().__init__('straight_line_driver')
+        self.publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
+        self.timer = self.create_timer(1.0, self.publish_straight_line_command)
+        self.duration = 3.0  # Set the duration for straight-line driving in seconds
+        self.start_time = self.get_clock().now().to_msg()
 
 
-if __name__ == "__main__":
+    def publish_straight_line_command(self):
+
+        current_time = self.get_clock().now().to_msg()
+        elapsed_time = (current_time.sec - self.start_time.sec) + (current_time.nanosec - self.start_time.nanosec) / 1e9
+
+        if elapsed_time < self.duration:
+            # Create an AckermannDriveStamped message
+            drive_msg = AckermannDriveStamped()
+            
+            # Set the linear speed for straight-line driving
+            drive_msg.drive.speed = 2.0  # Adjust the speed as needed
+
+            # Set the steering angle (0 for straight-line driving)
+            drive_msg.drive.steering_angle = 0.0
+
+            # Publish the command to the /drive topic
+            self.publisher.publish(drive_msg)
+        else:
+            # Stop the car by publishing a command with zero speed
+            stop_msg = AckermannDriveStamped()
+            stop_msg.drive.speed = 0.0
+            self.publisher.publish(stop_msg)
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    straight_line_driver = StraightLineDriver()
+    rclpy.spin(straight_line_driver)
+    straight_line_driver.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
     main()
-
 
