@@ -9,7 +9,7 @@ class StraightLineDriver(Node):
         super().__init__('straight_line_driver')
         self.publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
         self.timer = self.create_timer(1.0, self.publish_straight_line_command)
-        self.duration = 3.0  # Set the duration for straight-line driving in seconds
+        self.duration = 100.0  # Set the duration for straight-line driving in seconds
         self.start_time = self.get_clock().now().to_msg()
 
 
@@ -23,10 +23,10 @@ class StraightLineDriver(Node):
             drive_msg = AckermannDriveStamped()
             
             # Set the linear speed for straight-line driving
-            drive_msg.drive.speed = 2.0  # Adjust the speed as needed
+            drive_msg.drive.speed = 0.8  # Adjust the speed as needed
 
             # Set the steering angle (0 for straight-line driving)
-            drive_msg.drive.steering_angle = 0.0
+            drive_msg.drive.steering_angle = 0.4
 
             # Publish the command to the /drive topic
             self.publisher.publish(drive_msg)
