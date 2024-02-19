@@ -18,14 +18,14 @@ class StraightLineDriver(Node):
         self.markers_subscriber
 
 
-        self.publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
+        #self.publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
         self.timer = self.create_timer(0.1, self.timer_callback)
-        self.duration = 1000000000000000.0  # Set the duration for straight-line driving in seconds
-        self.start_time = self.get_clock().now().to_msg()
+        #self.duration = 1000000000000000.0  # Set the duration for straight-line driving in seconds
+        #self.start_time = self.get_clock().now().to_msg()
         
     def get_waypoints(self): 
 
-        data = np.load('/home/mshashank02/sim_ws/src/motion_primitive_cmd/waypoints/waypoints_data.npz')
+        data = np.load('/home/admin1/f1tenthros2_ws/src/motion_primitive_cmd/waypoints/waypoints_data.npz')
         self.waypoints = data['waypoints']
     
         
@@ -49,7 +49,9 @@ class StraightLineDriver(Node):
         current_x = (current_x1 + current_x2)/2
         current_y = (current_y1 + current_y2)/2
         self.current_position = np.array([current_x,current_y])
+        print(self.current_position)
         self.current_yaw = np.arctan((current_y2-current_y1)/(current_x2-current_x1))
+        print(self.current_yaw)
 
 
     def find_target_waypoint(self):
@@ -60,6 +62,7 @@ class StraightLineDriver(Node):
         closest_index = np.argmin(distances)
         #Closest waypoint to current position
         self.target_waypoint = self.waypoints[closest_index]
+        print(self.target_waypoint)
     
     def angle_controller(self):
 
@@ -109,16 +112,16 @@ class StraightLineDriver(Node):
     def timer_callback(self):
 
         #Get current state of the robot 
-        self.get_current_states()
+        #self.get_current_states()
 
         #Find the closest target waypoint
         self.find_target_waypoint()
 
         #Run angle controller to find the correct steering angle 
-        self.angle_controller()
+        #self.angle_controller()
 
         #Publish velocity and steering angle commands
-        self.publish_drive_command()
+        #self.publish_drive_command()
 
 def main(args=None):
     rclpy.init(args=args)
