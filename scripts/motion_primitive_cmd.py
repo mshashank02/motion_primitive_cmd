@@ -27,6 +27,7 @@ class StraightLineDriver(Node):
 
         data = np.load('/home/admin1/f1tenthros2_ws/src/motion_primitive_cmd/waypoints/waypoints_data.npz')
         self.waypoints = data['waypoints']
+        print(self.waypoints)
     
         
     def get_current_states(self,marker_msg):
