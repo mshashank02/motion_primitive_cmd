@@ -39,20 +39,25 @@ class StraightLineDriver(Node):
         #Get individual marker position
         for marker in marker_array:
 
-            if(marker.id == 0):
-                current_x1 = marker.x
-                current_y1 = marker.y
-            elif(marker.id == 1):
-                current_x2 = marker.x
-                current_y2 = marker.y
-            else:
+        #Cheking for visible markers only
+            if (marker.cond == -1):
                 continue
-        
-        current_x = (current_x1 + current_x2)/2
-        current_y = (current_y1 + current_y2)/2
+
+            else:
+                if(marker.id == 0):
+                    current_x1 = marker.x
+                    current_y1 = marker.y
+                elif(marker.id == 1):
+                    current_x2 = marker.x
+                    current_y2 = marker.y
+                else:
+                    continue
+
+        current_x = round((current_x1 + current_x2)/2, 3)
+        current_y = round((current_y1 + current_y2)/2, 3)
         self.current_position = np.array([current_x,current_y])
         print(f"current position is: {self.current_position}")
-        self.current_yaw = math.atan2((current_y2-current_y1)/(current_x2-current_x1))
+        self.current_yaw = round(math.atan2((current_y2-current_y1)/(current_x2-current_x1)), 3)
         print(f"current yaw is: {self.current_yaw}")
 
 
@@ -65,11 +70,13 @@ class StraightLineDriver(Node):
         closest_index = np.argmin(distances)
         
         #Closest waypoint to current position
-        self.target_waypoint = self.waypoints[closest_index]
+        self.target_waypoint = round(self.waypoints[closest_index], 3)
         
         print(f"target waypoint is: {self.target_waypoint}")
         
-    
+    #def lpf(current_value, previous_value, alpha):
+        #return alpha * current_value + (1 - alpha) * previous_value
+
     def angle_controller(self):
 
         #Proportional gain for yaw to steering angle 
@@ -93,6 +100,9 @@ class StraightLineDriver(Node):
         elif(self.steering_command >= 0.3949):
             self.steering_command = 0.3949
             print("Clipping steering angle to 0.3949")
+    
+    
+
     
 
     def publish_drive_command(self):
@@ -122,8 +132,6 @@ class StraightLineDriver(Node):
 
     def timer_callback(self):
 
-        #Get current state of the robot 
-        #self.get_current_states()
 
         #Find the closest target waypoint
         self.find_target_waypoint()
