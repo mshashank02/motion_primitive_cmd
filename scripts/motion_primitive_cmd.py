@@ -41,6 +41,7 @@ class StraightLineDriver(Node):
 
         #Cheking for visible markers only
             if (marker.cond == -1):
+                print(f"{marker.id} out of view")
                 continue
 
             else:
@@ -53,11 +54,11 @@ class StraightLineDriver(Node):
                 else:
                     continue
 
-        current_x = round((current_x1 + current_x2)/2, 3)
-        current_y = round((current_y1 + current_y2)/2, 3)
+        current_x = (current_x1 + current_x2)/2
+        current_y = (current_y1 + current_y2)/2
         self.current_position = np.array([current_x,current_y])
         print(f"current position is: {self.current_position}")
-        self.current_yaw = round(math.atan2((current_y2-current_y1)/(current_x2-current_x1)), 3)
+        self.current_yaw = math.atan2((current_y2-current_y1),(current_x2-current_x1))
         print(f"current yaw is: {self.current_yaw}")
 
 
@@ -70,7 +71,7 @@ class StraightLineDriver(Node):
         closest_index = np.argmin(distances)
         
         #Closest waypoint to current position
-        self.target_waypoint = round(self.waypoints[closest_index], 3)
+        self.target_waypoint = self.waypoints[closest_index]
         
         print(f"target waypoint is: {self.target_waypoint}")
         
@@ -84,7 +85,7 @@ class StraightLineDriver(Node):
         #Find the error in position 
         error = self.target_waypoint - self.current_position
         #Find the target yaw
-        target_yaw = math.atan2(error[1]/error[0])
+        target_yaw = math.atan2(error[1],error[0])
         print(f"target yaw is: {target_yaw}")
         #Find error in yaw
         error_yaw = target_yaw - self.current_yaw
