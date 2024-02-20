@@ -18,10 +18,12 @@ class StraightLineDriver(Node):
         self.markers_subscriber
 
 
-        #self.publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
+        self.publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
+        print("Above")
         self.timer = self.create_timer(0.1, self.timer_callback)
-        #self.duration = 1000000000000000.0  # Set the duration for straight-line driving in seconds
-        #self.start_time = self.get_clock().now().to_msg()
+        print("below")
+        self.duration = 1000000000000000.0  # Set the duration for straight-line driving in seconds
+        self.start_time = self.get_clock().now().to_msg()
         
     def get_waypoints(self): 
 
@@ -50,33 +52,40 @@ class StraightLineDriver(Node):
         current_x = (current_x1 + current_x2)/2
         current_y = (current_y1 + current_y2)/2
         self.current_position = np.array([current_x,current_y])
-        print(self.current_position)
+        print(f"current position is: {self.current_position}")
         self.current_yaw = np.arctan((current_y2-current_y1)/(current_x2-current_x1))
-        print(self.current_yaw)
+        print(f"current yaw is: {self.current_yaw}")
 
 
     def find_target_waypoint(self):
 
         #Calculate distance to each waypoint
         distances = [np.linalg.norm(np.array(waypoint) - self.current_position) for waypoint in self.waypoints]
+        
         #Index of closest waypoint 
         closest_index = np.argmin(distances)
+        
         #Closest waypoint to current position
         self.target_waypoint = self.waypoints[closest_index]
-        print(self.target_waypoint)
+        
+        print(f"target waypoint is: {self.target_waypoint}")
+        
     
     def angle_controller(self):
 
         #Proportional gain for yaw to steering angle 
-        Kp = 1
+        Kp = 0.1
         #Find the error in position 
         error = self.target_waypoint - self.current_position
         #Find the target yaw
         target_yaw = np.arctan(error[1]/error[0])
+        print(f"target yaw is: {target_yaw}")
         #Find error in yaw
         error_yaw = target_yaw - self.current_yaw
+        print(f"error in yaw: {error_yaw}")
         #Control command for steering angle 
         self.steering_command = Kp*error_yaw
+        print(f"steering angle setpoint: {self.steering_command}")
 
         #Clipping for max and min values 
         if(abs(self.steering_command)>0.85):
@@ -96,6 +105,7 @@ class StraightLineDriver(Node):
             # Create an AckermannDriveStamped message
             drive_msg = AckermannDriveStamped()
             
+            drive_msg.header.stamp = current_time
             # Set the linear speed for straight-line driving
             drive_msg.drive.speed = 0.8  # Adjust the speed as needed
 
@@ -107,6 +117,7 @@ class StraightLineDriver(Node):
         else:
             # Stop the car by publishing a command with zero speed
             stop_msg = AckermannDriveStamped()
+            stop_msg.header.stamp = current_time
             stop_msg.drive.speed = 0.0
             self.publisher.publish(stop_msg)
 
@@ -119,10 +130,10 @@ class StraightLineDriver(Node):
         self.find_target_waypoint()
 
         #Run angle controller to find the correct steering angle 
-        #self.angle_controller()
+        self.angle_controller()
 
         #Publish velocity and steering angle commands
-        #self.publish_drive_command()
+        self.publish_drive_command()
 
 def main(args=None):
     rclpy.init(args=args)
