@@ -6,7 +6,7 @@ from rclpy.node import Node
 from ackermann_msgs.msg import AckermannDriveStamped
 from phasespace_msgs.msg import Marker
 from phasespace_msgs.msg import Markers
-from numpy import load
+import math
 
 class StraightLineDriver(Node):
     def __init__(self):
@@ -52,7 +52,7 @@ class StraightLineDriver(Node):
         current_y = (current_y1 + current_y2)/2
         self.current_position = np.array([current_x,current_y])
         print(f"current position is: {self.current_position}")
-        self.current_yaw = np.arctan((current_y2-current_y1)/(current_x2-current_x1))
+        self.current_yaw = math.atan2((current_y2-current_y1)/(current_x2-current_x1))
         print(f"current yaw is: {self.current_yaw}")
 
 
@@ -77,7 +77,7 @@ class StraightLineDriver(Node):
         #Find the error in position 
         error = self.target_waypoint - self.current_position
         #Find the target yaw
-        target_yaw = np.arctan(error[1]/error[0])
+        target_yaw = math.atan2(error[1]/error[0])
         print(f"target yaw is: {target_yaw}")
         #Find error in yaw
         error_yaw = target_yaw - self.current_yaw
