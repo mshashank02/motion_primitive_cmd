@@ -17,12 +17,11 @@ class StraightLineDriver(Node):
         self.markers_subscriber = self.create_subscription(Markers,'/synchronized_markers',self.get_current_states,10)
         self.markers_subscriber
 
-
+	#Publisher for velocity commands
         self.publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
-        print("Above")
         self.timer = self.create_timer(0.1, self.timer_callback)
-        print("below")
-        self.duration = 1000000000000000.0  # Set the duration for straight-line driving in seconds
+        
+        self.duration = 1000000000000000.0  # Set the duration for driving in seconds
         self.start_time = self.get_clock().now().to_msg()
         
     def get_waypoints(self): 
@@ -88,12 +87,12 @@ class StraightLineDriver(Node):
         print(f"steering angle setpoint: {self.steering_command}")
 
         #Clipping for max and min values 
-        if(abs(self.steering_command)>0.85):
-            self.steering_command = 0.85
-            print("Clipping steering angle to 0.85")
-        elif(abs(self.steering_command)<0.15):
-            self.steering_command = 0.15
-            print("Clipping steering angle to 0.15")
+        if(self.steering_command <= -0.4494):
+            self.steering_command = -0.4494
+            print("Clipping steering angle to -0.4494")
+        elif(self.steering_command >= 0.3949):
+            self.steering_command = 0.3949
+            print("Clipping steering angle to 0.3949")
     
 
     def publish_drive_command(self):
@@ -133,7 +132,7 @@ class StraightLineDriver(Node):
         self.angle_controller()
 
         #Publish velocity and steering angle commands
-        self.publish_drive_command()
+        #self.publish_drive_command()
 
 def main(args=None):
     rclpy.init(args=args)

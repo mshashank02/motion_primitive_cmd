@@ -14,7 +14,7 @@ class StraightLineDriver(Node):
 
         self.publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
         self.timer = self.create_timer(0.1, self.publish_straight_line_command)
-        self.duration = 100.0  # Set the duration for straight-line driving in seconds
+        self.duration = 1.0  # Set the duration for straight-line driving in seconds
         self.start_time = self.get_clock().now().to_msg()
         
 
