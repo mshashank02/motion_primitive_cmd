@@ -29,7 +29,7 @@ class StraightLineDriver(Node):
         data = np.load('/home/admin1/f1tenthros2_ws/src/motion_primitive_cmd/waypoints/waypoints_data.npz')
         self.waypoints = data['waypoints']
         print(self.waypoints)
-    
+            
         
     def get_current_states(self,marker_msg):
 
@@ -41,28 +41,55 @@ class StraightLineDriver(Node):
 
         #Cheking for visible markers only
             if (marker.cond == -1):
-                print(f"{marker.id} out of view")
-                continue
-
-            else:
                 if(marker.id == 0):
-                    current_x1 = marker.x
-                    current_y1 = marker.y
+                    current_x1 = previous_x1
+                    current_y1 = previous_y1
                 elif(marker.id == 1):
-                    current_x2 = marker.x
-                    current_y2 = marker.y
+                    current_x2 = previous_x2
+                    current_y2 = previous_y2
                 else:
                     continue
+            else:
+                #If the marker is visible update the current positions
+                if (marker.id == 0):
+                    current_x1 = marker.x
+                    current_y1 = marker.y
+                    previous_x1 = current_x1
+                    previous_y1 = current_y1
+                elif marker.id == 1:
+                    current_x2 = marker.x
+                    current_y2 = marker.y
+                    previous_x2 = current_x2
+                    previous_y2 = current_y2
 
+            
+        #Find the position of the robot in world frame 
         current_x = (current_x1 + current_x2)/2
         current_y = (current_y1 + current_y2)/2
         self.current_position = np.array([current_x,current_y])
         print(f"current position is: {self.current_position}")
-        self.current_yaw = math.atan2((current_y2-current_y1),(current_x2-current_x1))
+
+        #Find the yaw of the robot in world frame 
+        yaw = math.atan2((current_y2-current_y1),(current_x2-current_x1))
+        if(((current_x2-current_x1) and (current_y2-current_y1))>0):
+            self.current_yaw = yaw
+        elif(((current_x2-current_x1) and (current_y2-current_y1))<0):
+            self.current_yaw = yaw + 1.57
+        elif((current_x2-current_x1)<0 and (current_y2-current_y1)>0):
+            self.current_yaw = yaw + 1.57
+        elif((current_x2-current_x1)>0 and (current_y2-current_y1)<0):
+            self.current_yaw = yaw + 3.14
+        else:
+            print("Angle error")
         print(f"current yaw is: {self.current_yaw}")
 
 
     def find_target_waypoint(self):
+
+        #for waypoint in self.waypoints:
+            #diff = waypoint - self.current_position
+            #if diff[1]>0:
+                #targets = np.append(targets,waypoint)
 
         #Calculate distance to each waypoint
         distances = [np.linalg.norm(np.array(waypoint) - self.current_position) for waypoint in self.waypoints]
@@ -75,9 +102,7 @@ class StraightLineDriver(Node):
         
         print(f"target waypoint is: {self.target_waypoint}")
         
-    #def lpf(current_value, previous_value, alpha):
-        #return alpha * current_value + (1 - alpha) * previous_value
-
+    
     def angle_controller(self):
 
         #Proportional gain for yaw to steering angle 
@@ -138,7 +163,7 @@ class StraightLineDriver(Node):
         self.find_target_waypoint()
 
         #Run angle controller to find the correct steering angle 
-        self.angle_controller()
+        #self.angle_controller()
 
         #Publish velocity and steering angle commands
         #self.publish_drive_command()
