@@ -57,12 +57,7 @@ class StraightLineDriver(Node):
 
 
     def find_target_waypoint(self):
-
-        #for waypoint in self.waypoints:
-            #diff = waypoint - self.current_position
-            #if diff[1]>0:
-                #targets = np.append(targets,waypoint)
-
+        
         #Calculate distance to each waypoint
         distances = [np.linalg.norm(np.array(waypoint) - self.current_position) for waypoint in self.waypoints]
         
