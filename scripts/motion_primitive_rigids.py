@@ -15,7 +15,7 @@ class StraightLineDriver(Node):
 
         self.get_waypoints()
         #Subscriber for markers
-        self.markers_subscriber = self.create_subscription(Rigids,'/synchronized_markers',self.get_current_states,10)
+        self.markers_subscriber = self.create_subscription(Rigids,'/synchronized_rigids',self.get_current_states,10)
         self.markers_subscriber
 
 	#Publisher for velocity commands
@@ -57,7 +57,7 @@ class StraightLineDriver(Node):
 
 
     def find_target_waypoint(self):
-        
+
         #Calculate distance to each waypoint
         distances = [np.linalg.norm(np.array(waypoint) - self.current_position) for waypoint in self.waypoints]
         
