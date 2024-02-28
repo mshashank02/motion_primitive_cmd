@@ -46,8 +46,10 @@ class StraightLineDriver(Node):
                 print(f"current position is: {self.current_position}")
                 current_quat = np.quaternion(rigid.qw,rigid.qx,rigid.qy,rigid.qz)
                 print(f"current quaternion is: {current_quat}")
-                current_rot = np.quaternion.as_rotation_matrix(current_quat)
+                current_rot = quaternion.as_rotation_matrix(current_quat)
                 print(f"current rotation matrix is: {current_rot}")
+                self.yaw = np.arctan2(current_rot[1, 0], current_rot[0, 0])
+                print(f"current yaw is: {self.yaw}")
                 
 
     
