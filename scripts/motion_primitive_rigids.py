@@ -35,7 +35,7 @@ class StraightLineDriver(Node):
     def get_current_states(self,rigids_msg):
 
         #Get the current marker array 
-        rigids_array = rigids_msg.msg
+        rigids_array = rigids_msg.rigids
 
         #Get individual marker position
         for rigid in rigids_array:
