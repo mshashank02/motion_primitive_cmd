@@ -39,22 +39,18 @@ class StraightLineDriver(Node):
 
         #Get individual marker position
         for rigid in rigids_array:
+            
+            if(rigid.id ==1):
 
-            current_x = rigid.x
-            current_y = rigid.y
-            current_qw = rigid.qw
-            current_qx = rigid.qx
-            current_qy = rigid.qy
-            current_qz = rigid.qz
+                self.current_position = np.array([rigid.x,rigid.y])
+                print(f"current position is: {self.current_position}")
+                current_quat = np.quaternion(rigid.qw,rigid.qx,rigid.qy,rigid.qz)
+                print(f"current quaternion is: {current_quat}")
+                current_rot = np.quaternion.as_rotation_matrix(current_quat)
+                print(f"current rotation matrix is: {current_rot}")
+                
 
     
-        self.current_position = np.array([current_x,current_y])
-        print(f"current position is: {self.current_position}")
-        self.current_quat = np.qauaternion(current_qw,current_qx,current_qy,current_qz)
-        print(f"current yaw is: {self.current_quat}")
-
-        
-
 
     def find_target_waypoint(self):
 
