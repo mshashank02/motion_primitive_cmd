@@ -66,6 +66,14 @@ class StraightLineDriver(Node):
         self.target_waypoint = self.waypoints[closest_index]
         
         print(f"target waypoint is: {self.target_waypoint}")
+    
+    def waypoint_reached(self):
+
+        distance_to_waypoint = np.linalg.norm(self.target_waypoint - self.current_position)
+        print(f"distance to waypoint is: {distance_to_waypoint}")
+        min_distance = 0.01
+        if(distance_to_waypoint <= min_distance):
+            print(f"waypoint reached")
         
     
     def angle_controller(self):
@@ -126,6 +134,8 @@ class StraightLineDriver(Node):
 
         #Find the closest target waypoint
         self.find_target_waypoint()
+        #Find distance to waypoint
+        self.waypoint_reached()
 
         #Run angle controller to find the correct steering angle 
         #self.angle_controller()
