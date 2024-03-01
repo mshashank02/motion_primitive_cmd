@@ -14,11 +14,12 @@ class StraightLineDriver(Node):
         super().__init__('straight_line_driver')
 
         self.get_waypoints()
-        self.get_current_states()
-        self.reorder_waypoints()
+        
         #Subscriber for markers
         self.markers_subscriber = self.create_subscription(Rigids,'/synchronized_rigids',self.get_current_states,10)
         self.markers_subscriber
+        
+        self.reorder_waypoints()
 
 	#Publisher for velocity commands
         self.publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
