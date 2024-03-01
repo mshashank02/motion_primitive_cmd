@@ -14,6 +14,8 @@ class StraightLineDriver(Node):
         super().__init__('straight_line_driver')
 
         self.get_waypoints()
+        self.get_current_states()
+        self.reorder_waypoints()
         #Subscriber for markers
         self.markers_subscriber = self.create_subscription(Rigids,'/synchronized_rigids',self.get_current_states,10)
         self.markers_subscriber
@@ -54,7 +56,7 @@ class StraightLineDriver(Node):
 
     
 
-    def find_target_waypoint(self):
+    def reorder_waypoints(self):
 
         #Calculate distance to each waypoint
         distances = [np.linalg.norm(np.array(waypoint) - self.current_position) for waypoint in self.waypoints]
@@ -62,23 +64,33 @@ class StraightLineDriver(Node):
         #Index of closest waypoint 
         closest_index = np.argmin(distances)
         
-        #Closest waypoint to current position
-        self.target_waypoint = self.waypoints[closest_index]
+        #Reorder waypoints starting from the closest point 
+        self.reordered_waypoints = np.roll(self.waypoints,-closest_index,axis=0)
         
-        print(f"target waypoint is: {self.target_waypoint}")
+        
     
     def waypoint_reached(self):
+        
+        i = 0
+           
+        #Looping through the reordered waypoints   
+        while (i <= np.size(self.reordered_waypoints)):
 
-        distance_to_waypoint = np.linalg.norm(self.target_waypoint - self.current_position)
-        print(f"distance to waypoint is: {distance_to_waypoint}")
-        min_distance = 0.01
-        if(distance_to_waypoint <= min_distance):
-            print(f"waypoint reached")
+            self.target_waypoint = self.reordered_waypoints[i] 
+            distance_to_waypoint = np.linalg.norm(self.target_waypoint - self.current_position)
+            min_distance = 0.01  #TODO Tune this parameter
+            if(distance_to_waypoint <= min_distance):
+                print("Reached {i}th waypoint")
+                i += 1
+
+        
+        
         
     
     def angle_controller(self):
 
         #Proportional gain for yaw to steering angle 
+        #TODO Tune this parameter 
         Kp = 0.1
         #Find the error in position 
         error = self.target_waypoint - self.current_position
@@ -132,8 +144,6 @@ class StraightLineDriver(Node):
     def timer_callback(self):
 
 
-        #Find the closest target waypoint
-        self.find_target_waypoint()
         #Find distance to waypoint
         self.waypoint_reached()
 
