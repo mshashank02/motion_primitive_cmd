@@ -18,8 +18,8 @@ class StraightLineDriver(Node):
         #Subscriber for markers
         self.markers_subscriber = self.create_subscription(Rigids,'/synchronized_rigids',self.get_current_states,10)
         self.markers_subscriber
-        
-        self.reorder_waypoints()
+
+
 
 	#Publisher for velocity commands
         self.publisher = self.create_publisher(AckermannDriveStamped, '/drive', 10)
@@ -96,7 +96,7 @@ class StraightLineDriver(Node):
         #Find the error in position 
         error = self.target_waypoint - self.current_position
         #Find the target yaw
-        target_yaw = math.atan2(error[1],error[0])
+        target_yaw = np.arctan2(error[1],error[0])
         print(f"target yaw is: {target_yaw}")
         #Find error in yaw
         error_yaw = target_yaw - self.current_yaw
