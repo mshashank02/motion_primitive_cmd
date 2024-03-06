@@ -53,7 +53,8 @@ class StraightLineDriver(Node):
 
                 self.current_position = np.array([rigid.x,rigid.y])
                 print(f"current position is: {self.current_position}")
-                self.current_position_set = True
+                with self.current_position_set:
+                    self.current_position_set.notify_all()  # Notify waiting threads
                 current_quat = np.quaternion(rigid.qw,rigid.qx,rigid.qy,rigid.qz)
                 print(f"current quaternion is: {current_quat}")
                 current_rot = quaternion.as_rotation_matrix(current_quat)
