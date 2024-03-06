@@ -14,10 +14,14 @@ class StraightLineDriver(Node):
         super().__init__('straight_line_driver')
 
         self.get_waypoints()
+
+        self.current_position = None
+        self.current_position_set = False
         
         #Subscriber for markers
         self.markers_subscriber = self.create_subscription(Rigids,'/synchronized_rigids',self.get_current_states,10)
         self.markers_subscriber
+
         self.reorder_waypoints()
 
 
@@ -48,17 +52,21 @@ class StraightLineDriver(Node):
 
                 self.current_position = np.array([rigid.x,rigid.y])
                 print(f"current position is: {self.current_position}")
+                self.current_position_set = True
                 current_quat = np.quaternion(rigid.qw,rigid.qx,rigid.qy,rigid.qz)
                 print(f"current quaternion is: {current_quat}")
                 current_rot = quaternion.as_rotation_matrix(current_quat)
                 print(f"current rotation matrix is: {current_rot}")
                 self.yaw = np.arctan2(current_rot[1, 0], current_rot[0, 0])
                 print(f"current yaw is: {self.yaw}")
-                
+                break
 
     
 
     def reorder_waypoints(self):
+
+        while not self.current_position_set:
+            pass
 
         #Calculate distance to each waypoint
         distances = [np.linalg.norm(np.array(waypoint) - self.current_position) for waypoint in self.waypoints]
