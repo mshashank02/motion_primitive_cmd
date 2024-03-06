@@ -8,6 +8,7 @@ from phasespace_msgs.msg import Rigid
 from phasespace_msgs.msg import Rigids
 import math
 import quaternion 
+import threading
 
 class StraightLineDriver(Node):
     def __init__(self):
@@ -16,7 +17,7 @@ class StraightLineDriver(Node):
         self.get_waypoints()
 
         self.current_position = None
-        self.current_position_set = False
+        self.current_position_set = threading.Condition()
         
         #Subscriber for markers
         self.markers_subscriber = self.create_subscription(Rigids,'/synchronized_rigids',self.get_current_states,10)
@@ -65,8 +66,8 @@ class StraightLineDriver(Node):
 
     def reorder_waypoints(self):
 
-        while not self.current_position_set:
-            pass
+        with self.current_position_set:
+            self.current_position_set.wait_for(lambda: self.current_position is not None)
 
         #Calculate distance to each waypoint
         distances = [np.linalg.norm(np.array(waypoint) - self.current_position) for waypoint in self.waypoints]
