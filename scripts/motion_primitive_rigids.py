@@ -17,7 +17,8 @@ class StraightLineDriver(Node):
         self.get_waypoints()
 
         self.current_position = None
-        self.current_position_set = False
+        self.initial_position_set = False
+        self.reorder_called = False
         
         #Subscriber for markers
         self.markers_subscriber = self.create_subscription(Rigids,'/synchronized_rigids',self.get_current_states,10)
@@ -52,8 +53,10 @@ class StraightLineDriver(Node):
             if(rigid.id ==1):
 
                 self.current_position = np.array([rigid.x,rigid.y])
+                if not self.initial_position_set:
+                    self.reorder_waypoints()
+                    self.initial_position_set = True
                 print(f"current position is: {self.current_position}")
-                self.current_position = True
                 current_quat = np.quaternion(rigid.qw,rigid.qx,rigid.qy,rigid.qz)
                 print(f"current quaternion is: {current_quat}")
                 current_rot = quaternion.as_rotation_matrix(current_quat)
@@ -66,18 +69,19 @@ class StraightLineDriver(Node):
 
     def reorder_waypoints(self):
 
-        while not self.current_position_set:
-            time.sleep(0.1)
+        if not self.reorder_called:
 
-        #Calculate distance to each waypoint
-        distances = [np.linalg.norm(np.array(waypoint) - self.current_position) for waypoint in self.waypoints]
+
+            #Calculate distance to each waypoint
+            distances = [np.linalg.norm(np.array(waypoint) - self.current_position) for waypoint in self.waypoints]
         
-        #Index of closest waypoint 
-        closest_index = np.argmin(distances)
+            #Index of closest waypoint 
+            closest_index = np.argmin(distances)
         
-        #Reorder waypoints starting from the closest point 
-        self.reordered_waypoints = np.roll(self.waypoints,-closest_index,axis=0)
-        
+            #Reorder waypoints starting from the closest point 
+            self.reordered_waypoints = np.roll(self.waypoints,-closest_index,axis=0)
+
+            self.reorder_called = True
         
     
     def waypoint_reached(self):
