@@ -24,7 +24,7 @@ class StraightLineDriver(Node):
         self.markers_subscriber = self.create_subscription(Rigids,'/synchronized_rigids',self.get_current_states,10)
         self.markers_subscriber
 
-        self.reorder_waypoints()
+      
 
 
 
